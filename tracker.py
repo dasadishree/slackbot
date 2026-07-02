@@ -39,6 +39,7 @@ def main():
 
     while True:
         window_title = get_active_window_title()
+        print(f"[DEBUG] Current Active Window Title: '{window_title}")
         is_distracted = False
         for site in DISTRACTING_SITES:
             if site in window_title:
@@ -47,3 +48,20 @@ def main():
                     current_distraction = site
                     tracked_time=0
                 break
+        if is_distracted:
+            tracked_time += 2
+            print("Caught on {current_distraction}! Time wasted: {tracked_time}s")
+
+            if tracked_time>=SHAME_THRESHOLD and (time.time() - last_shame_time>30):
+                send_shame_message(current_distraction, tracked_time)
+                last_shame_time = time.time()
+        else:
+            if current_distraction:
+                print("Back to work! Timer reset.")
+            current_distraction = None 
+            tracked_time = 0
+        
+        time.sleep(2)
+
+if __name__ == "__main__":
+    main()
