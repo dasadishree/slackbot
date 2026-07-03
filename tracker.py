@@ -1,13 +1,22 @@
 import time
 import requests
 from AppKit import NSWorkspace
+import subprocess
 
 DISTRACTING_SITES = ["tiktok", "instagram", "youtube", "netflix", "stream", "watch", "pinterest", "slack"]
 
 SHAME_THRESHOLD = 10
 
 def get_active_window_title():
-    active_app = NSWorkspace.sharedWorkspace().frontmostApplication()
+    try:
+        script = 'tell application "Google Chrome" to get title of active tab of front window'
+        proc = subprocess.Popen(['osascript', '-e', script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = proc.communicate()
+        if out:
+            return f"chrome - {out.decode('utf-8').strip().lower()}"
+    except Exception:
+        pass
+    active_app=NSWorkspace.sharedWorkspace().frontmostApplication()
     if active_app:
         return active_app.localizedName().lower()
     return ""
@@ -19,14 +28,14 @@ def send_shame_message(site, total_time):
 
     payload = {
         "text": (
-            f"*PUBLIC HUMILIATION: ADISHREE IS SLACKING OFF* \n"
-            f"Look who decidedto slack off and waste time\n"
-            f"Adishree has been caught on *{site.capitalize()}* for *{time_str}* straight."
-            f"Please drop some clown emojis in the thread to help them stay focused."
+            f"*:siren-real: PUBLIC HUMILIATION: ADISHREE IS SLACKING OFF :siren-real:* \n"
+            f"Look who decided to slack off and waste time\n"
+            f":caught: Adishree has been caught on *{site.capitalize()}* for *{time_str}* straight.\n"
+            f":clown-face: Please drop some clown emojis in the thread to help them stay focused."
         )
     }
     try:
-        request.post(WEBHOOK_URL, json=payload)
+        requests.post(WEBHOOK_URL, json=payload)
         print(f"Shame message sent for {site}")
     except Exception as e:
         print(f"Error sending to Slack: {e}")
@@ -50,7 +59,7 @@ def main():
                 break
         if is_distracted:
             tracked_time += 2
-            print("Caught on {current_distraction}! Time wasted: {tracked_time}s")
+            print(f"Caught on {current_distraction}! Time wasted: {tracked_time}s")
 
             if tracked_time>=SHAME_THRESHOLD and (time.time() - last_shame_time>30):
                 send_shame_message(current_distraction, tracked_time)
