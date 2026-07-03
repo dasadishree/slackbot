@@ -5,6 +5,7 @@ Sends a message in my personal channel every time ur on a new site that is not p
 
 See #a-dish-ree (private, dm to join) or #publichumiliation on slack to see it working
 
+https://app.slack.com/client/E09V59WQY1E/C0BEFK5EQS3
 https://hackclub.enterprise.slack.com/archives/D0BEX62PVJ6
 
 # HOW TO USE
