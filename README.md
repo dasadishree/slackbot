@@ -12,3 +12,5 @@ TO START (RUNS IN THE BACKGROUND): cd to the right folder, nohup python3 tracker
 TO PAUSE: touch .paused
 TO RESUME: rm .paused
 TO END: pkill -f tracker.py
+
+<img width="1470" height="956" alt="Screenshot 2026-07-03 at 8 19 13 AM" src="https://github.com/user-attachments/assets/117e4204-8164-4bff-a0b6-5307b96f29c8" />
