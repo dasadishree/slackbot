@@ -31,14 +31,17 @@ def get_active_window_title():
         pass
     return ""
 
-def send_shame_message(full_title, strike_count):
-    display_title = full_title.replace("Chrome - ", "").replace("chrome - ", "")
+def send_shame_message(full_title, matched_site, strike_count):
+    if matched_site in ["watch", "stream"]:
+        display_text = "watching some movie/show"
+    else:
+        display_text = f"on {matched_site.capitalize()}"
     
     group_ping = "<!subteam^S0BEX6JQ06N>"
     payload = {
         "text": (
             f":siren-real: *PUBLIC HUMILIATION: ADISHREE IS SLACKING OFF {group_ping} * :siren-real: \n"
-            f":caught: Adishree has been caught on *{display_title}*\n"
+            f":caught: Adishree has been caught *{display_text}*\n"
             f"This is distraction #*{strike_count}* today. :caught:\n"
         )
     }
@@ -69,7 +72,7 @@ def main():
             if current_distraction != matched_site:
                 distraction_count += 1
                 current_distraction = matched_site
-                send_shame_message(window_title, distraction_count)
+                send_shame_message(window_title, matched_site, distraction_count)
         else:
             current_distraction = None
         
