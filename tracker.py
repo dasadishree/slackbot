@@ -3,8 +3,10 @@ import requests
 from AppKit import NSWorkspace
 import subprocess
 
-DISTRACTING_SITES = ["tiktok", "instagram", "youtube", "netflix", "stream", "watch", "pinterest", "slack"]
+load_dotenv()
+WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 
+DISTRACTING_SITES = ["tiktok", "instagram", "youtube", "netflix", "stream", "watch", "pinterest", "slack"]
 SHAME_THRESHOLD = 10
 
 def get_active_window_title():
