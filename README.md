@@ -9,9 +9,9 @@ https://app.slack.com/client/E09V59WQY1E/C0BEFK5EQS3
 https://hackclub.enterprise.slack.com/archives/D0BEX62PVJ6
 
 # HOW TO USE
-TO START (RUNS IN THE BACKGROUND): cd to the right folder, nohup python3 tracker.py > /dev/null 2>&1 &
-TO PAUSE: touch .paused
-TO RESUME: rm .paused
-TO END: pkill -f tracker.py
+- TO START (RUNS IN THE BACKGROUND): cd to the right folder, nohup python3 tracker.py > /dev/null 2>&1 &
+- TO PAUSE: touch .paused
+- TO RESUME: rm .paused
+- TO END: pkill -f tracker.py
 
 <img width="1470" height="956" alt="Screenshot 2026-07-03 at 8 19 13 AM" src="https://github.com/user-attachments/assets/117e4204-8164-4bff-a0b6-5307b96f29c8" />
