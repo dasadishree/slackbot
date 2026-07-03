@@ -32,6 +32,11 @@ def get_active_window_title():
     return ""
 
 def send_shame_message(full_title, matched_site, strike_count):
+    # pause/resume
+    if os.path.exists(".paused"):
+        print("paused")
+        return
+    
     if matched_site in ["watch", "stream"]:
         display_text = "watching some movie/show"
     else:
