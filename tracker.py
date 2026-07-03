@@ -1,13 +1,14 @@
+import os
 import time
 import requests
-from AppKit import NSWorkspace
 import subprocess
+from AppKit import NSWorkspace
+from dotenv import load_dotenv
 
 load_dotenv()
 WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 
 DISTRACTING_SITES = ["tiktok", "instagram", "youtube", "netflix", "stream", "watch", "pinterest", "slack"]
-SHAME_THRESHOLD = 10
 
 def get_active_window_title():
     try:
@@ -15,62 +16,61 @@ def get_active_window_title():
         proc = subprocess.Popen(['osascript', '-e', script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = proc.communicate()
         if out:
-            return f"chrome - {out.decode('utf-8').strip().lower()}"
+            return f"chrome - {out.decode('utf-8').strip()}"
     except Exception:
         pass
-    active_app=NSWorkspace.sharedWorkspace().frontmostApplication()
-    if active_app:
-        return active_app.localizedName().lower()
+
+    try:
+        active_app = NSWorkspace.sharedWorkspace().frontmostApplication()
+        if active_app:
+            return active_app.localizedName()
+    except Exception:
+        pass
     return ""
 
-def send_shame_message(site, total_time):
-    minutes = total_time // 60
-    seconds = total_time % 60
-    time_str = f"{minutes}m {seconds}s" if minutes>0 else f"{seconds}s"
+def send_shame_message(full_title, strike_count):
+    if not WEBHOOK_URL:
+        print("Error: SLACK_WEBHOOK_URL is not set!")
+        return
+    
+    display_title = full_title.replace("Chrome -", "")
 
     payload = {
         "text": (
-            f"*:siren-real: PUBLIC HUMILIATION: ADISHREE IS SLACKING OFF :siren-real:* \n"
-            f"Look who decided to slack off and waste time\n"
-            f":caught: Adishree has been caught on *{site.capitalize()}* for *{time_str}* straight.\n"
-            f":clown-face: Please drop some clown emojis in the thread to help them stay focused."
+            f":siren-real: *PUBLIC HUMILIATION: ADISHREE IS SLACKING OFF* :siren-real: \n"
+            f":caught: Adishree has been caught on *{display_title}*\n"
+            f"This is distraction #*{strike_count}* today. :caught:\n"
         )
     }
     try:
         requests.post(WEBHOOK_URL, json=payload)
-        print(f"Shame message sent for {site}")
+        print(f"Shame message sent for {display_title} (Strike #{strike_count})")
     except Exception as e:
         print(f"Error sending to Slack: {e}")
 
 def main():
     print("watching")
-    tracked_time = 0
+    distraction_count = 0
     current_distraction = None
-    last_shame_time = 0
 
     while True:
         window_title = get_active_window_title()
-        print(f"[DEBUG] Current Active Window Title: '{window_title}")
+        title_lower = window_title.lower()
         is_distracted = False
+        matched_site = None
+
         for site in DISTRACTING_SITES:
-            if site in window_title:
+            if site in title_lower:
                 is_distracted = True
-                if current_distraction != site:
-                    current_distraction = site
-                    tracked_time=0
+                matched_site = site
                 break
         if is_distracted:
-            tracked_time += 2
-            print(f"Caught on {current_distraction}! Time wasted: {tracked_time}s")
-
-            if tracked_time>=SHAME_THRESHOLD and (time.time() - last_shame_time>30):
-                send_shame_message(current_distraction, tracked_time)
-                last_shame_time = time.time()
+            if current_distraction != matched_site:
+                distraction_count += 1
+                current_distraction = matched_site
+                send_shame_message(window_title, distraction_count)
         else:
-            if current_distraction:
-                print("Back to work! Timer reset.")
-            current_distraction = None 
-            tracked_time = 0
+            current_distraction = None
         
         time.sleep(2)
 
