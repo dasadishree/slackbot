@@ -6,7 +6,10 @@ from AppKit import NSWorkspace
 from dotenv import load_dotenv
 
 load_dotenv()
-WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
+WEBHOOK_URLS = [
+    os.getenv("SLACK_WEBHOOK_URL_PRIVATE"),
+    os.getenv("SLACK_WEBHOOK_URL_PUBLIC")
+]
 
 DISTRACTING_SITES = ["tiktok", "instagram", "youtube", "netflix", "stream", "watch", "pinterest", "slack"]
 
@@ -29,27 +32,25 @@ def get_active_window_title():
     return ""
 
 def send_shame_message(full_title, strike_count):
-    if not WEBHOOK_URL:
-        print("Error: SLACK_WEBHOOK_URL is not set!")
-        return
+    display_title = full_title.replace("Chrome - ", "").replace("chrome - ", "")
     
-    display_title = full_title.replace("Chrome -", "")
-
+    group_ping = "<!subteam^S0BEX6JQ06N>"
     payload = {
         "text": (
-            f":siren-real: *PUBLIC HUMILIATION: ADISHREE IS SLACKING OFF* :siren-real: \n"
+            f":siren-real: *PUBLIC HUMILIATION: ADISHREE IS SLACKING OFF {group_ping} * :siren-real: \n"
             f":caught: Adishree has been caught on *{display_title}*\n"
             f"This is distraction #*{strike_count}* today. :caught:\n"
         )
     }
-    try:
-        requests.post(WEBHOOK_URL, json=payload)
-        print(f"Shame message sent for {display_title} (Strike #{strike_count})")
-    except Exception as e:
-        print(f"Error sending to Slack: {e}")
+
+    for url in WEBHOOK_URLS:
+        if url:
+            try:
+                requests.post(url, json=payload)
+            except Exception:
+                pass
 
 def main():
-    print("watching")
     distraction_count = 0
     current_distraction = None
 
